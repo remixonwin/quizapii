@@ -49,7 +49,7 @@ The API will be available at `http://localhost:3000`
 - `GET /api/quizzes/{id}` - Get a specific quiz
 - `PUT /api/quizzes/{id}` - Update a quiz
 - `DELETE /api/quizzes/{id}` - Delete a quiz
-- `POST /api/quizzes/{id}/submit` - Submit quiz answers
+- `POST /api/quizzes/{id}/submit` - Submit quiz answers and get results
 
 ## Development
 
@@ -76,6 +76,7 @@ src/
 ## Data Models
 
 ### Quiz
+
 - id: Unique identifier
 - title: Quiz title
 - description: Quiz description
@@ -84,11 +85,20 @@ src/
 - updated_at: Timestamp
 
 ### Question
+
 - id: Unique identifier
 - text: Question text
 - options: Array of possible answers
 - correct_answer: Index of the correct answer
 - points: Points awarded for correct answer
+
+### Submission
+
+- id: Unique identifier
+- quiz_id: Reference to submitted quiz
+- answers: Array of selected answers
+- score: Total points achieved
+- submitted_at: Submission timestamp
 
 ## Testing
 

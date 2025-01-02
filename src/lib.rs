@@ -5,15 +5,12 @@ pub mod handlers;
 #[cfg(test)]
 mod tests {
     use crate::models::quiz::Quiz;
-    use crate::repository::quiz_repository::{QuizRepository, QuizRepositoryImpl};
     use crate::models::question::Question;
+    use crate::repository::quiz_repository::{QuizRepository, QuizRepositoryImpl};
+    use crate::models::submission::{QuizSubmission, Answer};
     use anyhow::Result;
-    use std::sync::Once;
     use chrono::Utc;
     use tempfile::TempDir;
-    use std::path::Path;
-
-    static INIT: Once = Once::new();
 
     async fn setup_test_db(dir: TempDir) -> Result<QuizRepositoryImpl> {
         Ok(QuizRepositoryImpl::new_with_path(dir.path())?)
@@ -142,5 +139,48 @@ mod tests {
         let retrieved = repo.get(&quiz.id).await.unwrap().unwrap();
         assert_eq!(retrieved.questions.len(), 1);
         assert_eq!(retrieved.questions[0].text, "What is Rust?");
+    }
+
+    #[tokio::test]
+    async fn test_quiz_submission() {
+        let dir = TempDir::new().unwrap();
+        let repo = setup_test_db(dir).await.unwrap();
+        let now = Utc::now();
+
+        let question = Question::new(
+            "What is Rust?".to_string(),
+            vec![
+                "A programming language".to_string(),
+                "A metal oxide".to_string(),
+                "A game engine".to_string()
+            ],
+            0,
+            10
+        );
+
+        let quiz = Quiz {
+            id: "test6".to_string(),
+            title: "Rust Quiz".to_string(),
+            description: "Test your Rust knowledge".to_string(),
+            questions: vec![question.clone()],
+            created_at: now.timestamp(),
+            updated_at: now.timestamp(),
+        };
+
+        let _ = repo.create(quiz.clone()).await;
+
+        let answer = Answer {
+            question_id: question.id,
+            selected_option: 0,
+        };
+
+        let submission = QuizSubmission::new(
+            quiz.id,
+            vec![answer],
+            10
+        );
+
+        assert_eq!(submission.score, 10);
+        assert_eq!(submission.answers.len(), 1);
     }
 }

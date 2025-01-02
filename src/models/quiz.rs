@@ -1,7 +1,6 @@
-use super::question::Question;
+use crate::models::question::Question;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Quiz {
@@ -25,14 +24,6 @@ impl Quiz {
             updated_at: now,
         }
     }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Question {
-    pub id: Uuid,
-    pub text: String,
-    pub options: Vec<String>,
-    pub correct_answer: usize,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
