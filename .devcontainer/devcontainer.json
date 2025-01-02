@@ -1,0 +1,46 @@
+{
+    "name": "Rust",
+    "build": {
+        "context": "..",
+        "dockerfile": "Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "rust-lang.rust-analyzer",
+                "vadimcn.vscode-lldb",
+                "serayuzgur.crates"
+            ],
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/bash",
+                "editor.formatOnSave": true,
+                "editor.tabSize": 4,
+                "editor.codeActionsOnSave": {
+                    "source.organizeImports": "explicit",
+                    "source.fixAll": "explicit"
+                },
+                "rust-analyzer.checkOnSave.command": "clippy",
+                "rust-analyzer.procMacro.enable": true,
+                "files.exclude": {
+                    "**/node_modules": true,
+                    "**/target": true
+                },
+                "eslint.enable": true,
+                "prettier.requireConfig": true,
+                "editor.inlineSuggest.enabled": true,
+                "github.copilot.advanced": {
+                    "language.rust.enabled": true,
+                    "language.javascript.enabled": true
+                }
+            }
+        }
+    },
+    "remoteUser": "vscode",
+    "runArgs": [
+        "--init"
+    ],
+    "mounts": [
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    ],
+    "updateRemoteUserUID": true
+}
