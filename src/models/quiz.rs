@@ -1,7 +1,9 @@
+use super::question::Question;
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Quiz {
     pub id: String,
     pub title: String,
@@ -9,6 +11,20 @@ pub struct Quiz {
     pub questions: Vec<Question>,
     pub created_at: i64,  // Unix timestamp
     pub updated_at: i64,
+}
+
+impl Quiz {
+    pub fn new(title: String, description: String, questions: Vec<Question>) -> Self {
+        let now = Utc::now().timestamp();
+        Self {
+            id: nanoid::nanoid!(),
+            title,
+            description,
+            questions,
+            created_at: now,
+            updated_at: now,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

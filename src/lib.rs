@@ -6,6 +6,7 @@ pub mod handlers;
 mod tests {
     use crate::models::quiz::Quiz;
     use crate::repository::quiz_repository::{QuizRepository, QuizRepositoryImpl};
+    use crate::models::question::Question;
     use anyhow::Result;
     use std::sync::Once;
     use chrono::Utc;
@@ -107,5 +108,39 @@ mod tests {
         
         let get_result = repo.get(&quiz.id).await.unwrap();
         assert!(get_result.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_quiz_with_questions() {
+        let dir = TempDir::new().unwrap();
+        let repo = setup_test_db(dir).await.unwrap();
+        let now = Utc::now();
+
+        let question = Question::new(
+            "What is Rust?".to_string(),
+            vec![
+                "A programming language".to_string(),
+                "A metal oxide".to_string(),
+                "A game engine".to_string()
+            ],
+            0,
+            10
+        );
+
+        let quiz = Quiz {
+            id: "test5".to_string(),
+            title: "Rust Quiz".to_string(),
+            description: "Test your Rust knowledge".to_string(),
+            questions: vec![question],
+            created_at: now.timestamp(),
+            updated_at: now.timestamp(),
+        };
+
+        let result = repo.create(quiz.clone()).await;
+        assert!(result.is_ok());
+        
+        let retrieved = repo.get(&quiz.id).await.unwrap().unwrap();
+        assert_eq!(retrieved.questions.len(), 1);
+        assert_eq!(retrieved.questions[0].text, "What is Rust?");
     }
 }

@@ -73,6 +73,23 @@ src/
 └── repository/    # Database operations
 ```
 
+## Data Models
+
+### Quiz
+- id: Unique identifier
+- title: Quiz title
+- description: Quiz description
+- questions: Array of Question objects
+- created_at: Timestamp
+- updated_at: Timestamp
+
+### Question
+- id: Unique identifier
+- text: Question text
+- options: Array of possible answers
+- correct_answer: Index of the correct answer
+- points: Points awarded for correct answer
+
 ## Testing
 
 The project includes both unit tests and integration tests:
