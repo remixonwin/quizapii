@@ -5,24 +5,38 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
+            "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in library 'quizmo'",
-            "preLaunchTask": "rust: cargo build",
-            "program": "${workspaceFolder}/target/debug/deps/quizmo-*",
+            "name": "Debug unit tests",
+            "preLaunchTask": "rust: cargo test build",
+            "program": "${workspaceFolder}/target/debug/deps/${input:testName}",
             "args": [],
             "cwd": "${workspaceFolder}",
-            "console": "internalConsole"
+            "sourceMap": {
+                "/rustc/*": "${env:HOME}/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust"
+            }
         },
         {
-            "type": "node",
+            "type": "lldb",
             "request": "launch",
-            "name": "Debug integration test 'lib'",
-            "preLaunchTask": "rust: cargo build",
-            "program": "${workspaceFolder}/target/debug/deps/lib-*",
+            "name": "Debug integration tests",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=lib"
+                ]
+            },
             "args": [],
             "cwd": "${workspaceFolder}",
-            "console": "internalConsole"
+            "sourceLanguages": ["rust"]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "testName",
+            "type": "promptString",
+            "description": "Name of the test binary to debug"
         }
     ]
 }

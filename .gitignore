@@ -33,6 +33,12 @@ logs/
 coverage/
 tarpaulin-report.*
 
+# Coverage reports
+tarpaulin-report.html
+cobertura.xml
+coverage/
+.tarpaulin
+
 # Local configuration files
 *.local
 config.local.*

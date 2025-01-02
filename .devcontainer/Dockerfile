@@ -26,12 +26,12 @@ RUN usermod -aG docker vscode
 WORKDIR /workspace
 RUN chown vscode:vscode /workspace
 
-# Copy package.json with correct ownership and install project dependencies
-COPY --chown=vscode:vscode package.json /workspace/
-RUN npm install
+# Copy package.json and install dependencies only if it exists
+COPY --chown=vscode:vscode package*.json ./
+RUN if [ -f "package.json" ]; then npm install; fi
 
 # Copy project files with correct ownership
-COPY --chown=vscode:vscode . /workspace
+COPY --chown=vscode:vscode . .
 
 # Switch to non-root user
 USER vscode

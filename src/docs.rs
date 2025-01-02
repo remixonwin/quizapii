@@ -1,5 +1,8 @@
+use crate::models::{
+    create_quiz_dto::CreateQuizDto, question::Question, quiz::Quiz, submission::*,
+    update_quiz_dto::UpdateQuizDto,
+};
 use utoipa::OpenApi;
-use crate::models::{quiz::*, question::*, submission::*};
 
 #[derive(OpenApi)]
 #[openapi(
@@ -25,9 +28,27 @@ use crate::models::{quiz::*, question::*, submission::*};
     tags(
         (name = "quizzes", description = "Quiz management endpoints"),
         (name = "submissions", description = "Quiz submission endpoints")
-    )
+    ),
+    modifiers(&SecurityAddon)
 )]
 pub struct ApiDoc;
+
+struct SecurityAddon;
+
+impl utoipa::Modify for SecurityAddon {
+    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
+        if let Some(components) = openapi.components.as_mut() {
+            components.add_security_scheme(
+                "bearer_auth",
+                utoipa::openapi::security::SecurityScheme::Http(
+                    utoipa::openapi::security::HttpBuilder::new()
+                        .scheme(utoipa::openapi::security::HttpAuthScheme::Bearer)
+                        .build(),
+                ),
+            );
+        }
+    }
+}
 
 /// Create a new quiz
 #[utoipa::path(

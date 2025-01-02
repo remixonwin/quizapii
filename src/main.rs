@@ -1,13 +1,18 @@
 use axum::{Router, Server};
+use quizmo::docs::ApiDoc;
 use std::net::SocketAddr;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
-use quizmo::docs::ApiDoc;
+
+pub mod docs;
+pub mod handlers;
+pub mod models;
+pub mod repository;
 
 #[tokio::main]
 async fn main() {
     let api_doc = ApiDoc::openapi();
-    
+
     let app_router = Router::new()
         // ...existing routes...
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api_doc));

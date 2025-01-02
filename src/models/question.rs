@@ -1,23 +1,49 @@
+use crate::models::create_quiz_dto::QuestionDto;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
+use validator::Validate;
 
-#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+/// Represents a quiz question
+///
+/// # Examples
+///
+/// ```
+/// use quizmo::models::question::Question;
+///
+/// let question = Question {
+///     id: "123".to_string(),
+///     text: "What is Rust?".to_string(),
+///     options: vec!["A programming language".to_string(), "A metal".to_string()],
+///     correct_answer: 0,
+///     points: 10,
+/// };
+///
+/// assert_eq!(question.text, "What is Rust?");
+/// assert_eq!(question.options.len(), 2);
+/// ```
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema, Validate)]
 pub struct Question {
-    pub id: String,
+    pub id: Option<String>,
     pub text: String,
     pub options: Vec<String>,
-    pub correct_answer: usize,
-    pub points: u32,
+    pub correct_option: usize,
+    pub points: i32,
 }
 
 impl Question {
-    pub fn new(text: String, options: Vec<String>, correct_answer: usize, points: u32) -> Self {
+    pub fn new(text: String, options: Vec<String>, correct_option: usize, points: i32) -> Self {
         Self {
-            id: nanoid::nanoid!(),
+            id: None,
             text,
             options,
-            correct_answer,
+            correct_option,
             points,
         }
+    }
+}
+
+impl From<QuestionDto> for Question {
+    fn from(dto: QuestionDto) -> Self {
+        Question::new(dto.text, dto.options, dto.correct_answer, dto.points)
     }
 }

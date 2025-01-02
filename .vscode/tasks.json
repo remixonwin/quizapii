@@ -14,10 +14,9 @@
 			}
 		},
 		{
-			"type": "shell",
-			"label": "cargo test build",
-			"command": "cargo",
-			"args": ["test", "--no-run"],
+			"type": "cargo",
+			"command": "test",
+			"args": ["--no-run"],
 			"problemMatcher": [
 				{
 					"owner": "rust",
@@ -34,7 +33,11 @@
 					}
 				}
 			],
-			"group": "build"
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			},
+			"label": "rust: cargo test build"
 		},
 		{
 			"type": "shell",
