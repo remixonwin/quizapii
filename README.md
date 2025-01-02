@@ -59,6 +59,14 @@ Run the tests using:
 cargo test
 ```
 
+## Test Coverage
+
+Generate test coverage report using:
+
+```bash
+cargo tarpaulin
+```
+
 ## License
 
 MIT License

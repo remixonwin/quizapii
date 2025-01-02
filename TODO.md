@@ -26,14 +26,14 @@
 
 ## Testing
 
-- [ ] Write unit tests for core functionality
-- [ ] Add integration tests
-- [ ] Create test fixtures
+- [x] Write unit tests for core functionality
+- [x] Add integration tests
+- [x] Create test fixtures
 - [ ] Set up CI/CD pipeline
 
 ## Security
 
-- [ ] Implement JWT authentication
+- [x] Implement JWT authentication
 - [ ] Add rate limiting
 - [ ] Set up CORS configuration
 - [ ] Add input sanitization

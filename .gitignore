@@ -1,0 +1,41 @@
+# Rust
+/target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+.cargo-ok
+
+# Debug and Release builds
+debug/
+release/
+
+# IDE and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.*
+
+# Logs
+logs/
+*.log
+
+# Test coverage
+coverage/
+tarpaulin-report.*
+
+# Local configuration files
+*.local
+config.local.*
+
+# Cache files
+*.cache
