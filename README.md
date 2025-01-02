@@ -1,20 +1,29 @@
-# Quizmo - OpenAPI Quiz Service
+# Quizmo - Quiz Management API
 
-A RESTful Quiz API service built with Rust, following OpenAPI specifications.
+A RESTful Quiz API service built with Rust, using sled for efficient local storage.
 
 ## Features
 
-- OpenAPI 3.0 compliant REST API
+- RESTful API with Axum framework
+- Local persistent storage with sled
 - Quiz creation and management
-- Question and answer handling
-- Score tracking and analytics
-- Secure authentication and authorization
+- Async request handling
+- Secure authentication
+- OpenAPI documentation
 
 ## Prerequisites
 
 - Rust 1.70 or higher
 - Cargo package manager
-- Docker (optional)
+
+## Tech Stack
+
+- **Framework**: Axum 0.6
+- **Storage**: sled 0.34
+- **Authentication**: JSON Web Tokens (JWT)
+- **Documentation**: OpenAPI with utoipa
+- **Validation**: validator
+- **Error Handling**: anyhow
 
 ## Getting Started
 
@@ -25,46 +34,76 @@ git clone https://github.com/yourusername/quizmo.git
 cd quizmo
 ```
 
-1. Build the project:
-
-```bash
-cargo build
-```
-
-1. Run the server:
+1. Run the development server:
 
 ```bash
 cargo run
 ```
 
-The API will be available at `http://localhost:8080`
+The API will be available at `http://localhost:3000`
 
-## API Documentation
+## API Routes
 
-The OpenAPI documentation is available at `/docs` endpoint when the server is running.
+- `POST /api/quizzes` - Create a new quiz
+- `GET /api/quizzes` - List all quizzes
+- `GET /api/quizzes/{id}` - Get a specific quiz
+- `PUT /api/quizzes/{id}` - Update a quiz
+- `DELETE /api/quizzes/{id}` - Delete a quiz
+- `POST /api/quizzes/{id}/submit` - Submit quiz answers
 
 ## Development
 
-This project uses a dev container configuration for consistent development environments. To use it:
+```bash
+# Run tests
+cargo test
 
-1. Install VS Code and the Remote - Containers extension
-2. Open the project in VS Code
-3. Click "Reopen in Container" when prompted
+# Run with logging
+RUST_LOG=debug cargo run
+
+# Generate API documentation
+cargo doc --open
+```
+
+## Project Structure
+
+```plaintext
+src/
+├── handlers/      # Request handlers
+├── models/        # Data models
+└── repository/    # Database operations
+```
 
 ## Testing
 
-Run the tests using:
+The project includes both unit tests and integration tests:
+
+### Unit Tests
+
+Located in `src/lib.rs`:
+
+- test_quiz_creation
+- test_quiz_retrieval
+- test_quiz_update
+- test_quiz_deletion
+
+### Integration Tests
+
+Located in `tests/api_tests.rs`:
+
+- test_authentication
+- test_create_quiz_endpoint
+- test_get_quiz_endpoint
+- test_submit_quiz_answers
 
 ```bash
+# Run all tests
 cargo test
-```
 
-## Test Coverage
+# Run with logging
+RUST_LOG=test cargo test
 
-Generate test coverage report using:
-
-```bash
-cargo tarpaulin
+# Run specific test suite
+cargo test --test api_tests
 ```
 
 ## License

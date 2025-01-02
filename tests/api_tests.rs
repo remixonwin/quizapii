@@ -1,20 +1,14 @@
-use quizmo;
 use serde_json::json;
 
 #[tokio::test]
 async fn test_create_quiz_endpoint() {
-    let test_quiz = json!({
+    let _test_quiz = json!({
         "title": "Test Quiz",
         "description": "A test quiz",
         "questions": [
             {
-                "question": "What is Rust?",
-                "answers": [
-                    "A programming language",
-                    "A metal oxide",
-                    "A game engine",
-                    "A web framework"
-                ],
+                "text": "What is Rust?",
+                "options": ["A programming language", "A metal", "A game", "A book"],
                 "correct_answer": 0
             }
         ]
