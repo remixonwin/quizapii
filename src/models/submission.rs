@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 use chrono::Utc;
+use utoipa::ToSchema;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct QuizSubmission {
     pub id: String,
     pub quiz_id: String,
@@ -10,13 +11,13 @@ pub struct QuizSubmission {
     pub submitted_at: i64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct Answer {
     pub question_id: String,
     pub selected_option: usize,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct SubmitQuizDto {
     pub answers: Vec<Answer>,
 }

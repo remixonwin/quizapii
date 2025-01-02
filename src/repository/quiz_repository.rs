@@ -9,8 +9,8 @@ pub trait QuizRepository {
     async fn create(&self, quiz: Quiz) -> Result<Quiz>;
     async fn get(&self, id: &str) -> Result<Option<Quiz>>;
     async fn list(&self) -> Result<Vec<Quiz>>;
-    async fn update(&self, id: &str, quiz: Quiz) -> Result<Quiz>;
-    async fn delete(&self, id: &str) -> Result<()>;
+    async fn update(&self, id: &str, quiz: Quiz) -> Result<Option<Quiz>>;
+    async fn delete(&self, id: &str) -> Result<bool>;
 }
 
 pub struct QuizRepositoryImpl {
@@ -60,16 +60,23 @@ impl QuizRepository for QuizRepositoryImpl {
         Ok(quizzes)
     }
 
-    async fn update(&self, id: &str, quiz: Quiz) -> Result<Quiz> {
-        let value = serde_json::to_vec(&quiz)?;
-        self.db.insert(id.as_bytes(), value)?;
-        self.db.flush_async().await?;
-        Ok(quiz)
+    async fn update(&self, id: &str, quiz: Quiz) -> Result<Option<Quiz>> {
+        if self.db.contains_key(id.as_bytes())? {
+            let value = serde_json::to_vec(&quiz)?;
+            self.db.insert(id.as_bytes(), value)?;
+            self.db.flush_async().await?;
+            Ok(Some(quiz))
+        } else {
+            Ok(None)
+        }
     }
 
-    async fn delete(&self, id: &str) -> Result<()> {
-        self.db.remove(id.as_bytes())?;
-        self.db.flush_async().await?;
-        Ok(())
+    async fn delete(&self, id: &str) -> Result<bool> {
+        if self.db.remove(id.as_bytes())?.is_some() {
+            self.db.flush_async().await?;
+            Ok(true)
+        } else {
+            Ok(false)
+        }
     }
 }

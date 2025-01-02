@@ -1,6 +1,8 @@
 pub mod models;
 pub mod repository;
 pub mod handlers;
+pub mod error;
+pub mod docs;
 
 #[cfg(test)]
 mod tests {
@@ -13,7 +15,7 @@ mod tests {
     use tempfile::TempDir;
 
     async fn setup_test_db(dir: TempDir) -> Result<QuizRepositoryImpl> {
-        Ok(QuizRepositoryImpl::new_with_path(dir.path())?)
+        QuizRepositoryImpl::new_with_path(dir.path())
     }
 
     #[tokio::test]
@@ -50,9 +52,8 @@ mod tests {
         };
         
         let _ = repo.create(quiz.clone()).await;
-        let result = repo.get(&quiz.id).await.unwrap();
-        assert!(result.is_some());
-        assert_eq!(result.unwrap().title, quiz.title);
+        let retrieved = repo.get(&quiz.id).await.unwrap().unwrap();
+        assert_eq!(retrieved.title, quiz.title);
     }
 
     #[tokio::test]
@@ -82,7 +83,8 @@ mod tests {
         
         let result = repo.update(&quiz.id, updated_quiz.clone()).await;
         assert!(result.is_ok());
-        assert_eq!(result.unwrap().title, "Updated Title");
+        let updated = result.unwrap().unwrap(); // Properly unwrap both Result and Option
+        assert_eq!(updated.title, "Updated Title");
     }
 
     #[tokio::test]

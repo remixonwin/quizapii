@@ -1,8 +1,9 @@
 use crate::models::question::Question;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct Quiz {
     pub id: String,
     pub title: String,
@@ -26,14 +27,14 @@ impl Quiz {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CreateQuizDto {
     pub title: String,
     pub description: String,
     pub questions: Vec<Question>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UpdateQuizDto {
     pub title: Option<String>,
     pub description: Option<String>,
