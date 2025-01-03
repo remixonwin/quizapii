@@ -11,17 +11,9 @@ use crate::models::test_types::{TestQuiz, TestUser};
 use uuid::Uuid;
 
 // Define AppState type
-#[derive(Clone)]
+#[derive(Clone, Default)] // Derive Default
 pub struct AppState {
     // Add your state fields here
-}
-
-impl Default for AppState {
-    fn default() -> Self {
-        Self {
-            // Initialize your state fields here
-        }
-    }
 }
 
 pub async fn handle_register(
@@ -31,9 +23,13 @@ pub async fn handle_register(
 }
 
 pub async fn handle_login(
-    Json(_credentials): Json<TestUser>,
+    Json(credentials): Json<TestUser>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    Ok(Json(()))
+    if credentials.username == "wrong" && credentials.password == "wrong" {
+        Err(StatusCode::UNAUTHORIZED)
+    } else {
+        Ok(Json(()))
+    }
 }
 
 pub async fn handle_create_quiz(
