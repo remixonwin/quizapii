@@ -26,6 +26,15 @@ cargo watch -x test
 cargo tarpaulin
 ```
 
+## Testing Updates
+```bash
+# Run all tests
+cargo test
+
+# Coverage with doc tests
+cargo +nightly tarpaulin --doc
+```
+
 ### Code Organization
 
 ```

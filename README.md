@@ -84,3 +84,4 @@ All errors are properly mapped to HTTP status codes:
 ## Contributing
 
 The project is in early development. Please check the open issues before contributing.
+## Test Section
