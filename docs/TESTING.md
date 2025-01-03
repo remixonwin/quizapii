@@ -1,4 +1,4 @@
-# Testing Guide
+# Testing Guidelines
 
 ## Test Categories
 
@@ -57,11 +57,11 @@ cargo +nightly tarpaulin --doc
 ## Coverage Requirements
 
 | Component    | Minimum | Target |
-|-------------|---------|---------|
-| Core Logic  | 80%     | 90%     |
-| API Layer   | 75%     | 85%     |
-| Models      | 70%     | 80%     |
-| Critical    | 95%     | 100%    |
+|--------------|---------|--------|
+| Core Logic   | 80%     | 90%    |
+| API Layer    | 75%     | 85%    |
+| Models       | 70%     | 80%    |
+| Critical     | 95%     | 100%   |
 
 ## Writing Tests
 

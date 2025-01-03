@@ -5,6 +5,40 @@
 
 A REST API for managing quizzes built with Rust using Axum and Sled DB.
 
+## Project Architecture
+
+This project follows atomic design principles with clear separation of concerns:
+
+```
+src/
+├── domain/       # Core business logic
+│   ├── entities/ # Pure data structures
+│   ├── usecases/ # Business operations
+│   └── ports/    # Interface definitions
+├── adapters/     # External integrations
+├── infrastructure/ # Technical concerns
+└── presentation/ # User interface
+```
+
+## Design Principles
+
+- Atomic Components: Each component has a single responsibility
+- Clear Interfaces: Well-defined trait-based interfaces
+- Minimal Side Effects: Explicit handling and documentation
+- Comprehensive Testing: Unit, integration, and property-based tests
+
+## Documentation
+
+- [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) - System design and component interactions
+- [`TESTING.md`](docs/TESTING.md) - Testing guidelines and coverage requirements
+- [`DESIGN_DECISIONS.md`](docs/DESIGN_DECISIONS.md) - Key technical decisions and rationale
+- [`AI_STRATEGY.md`](docs/AI_STRATEGY.md) - AI-assisted development guidelines
+- [`CODE_ORGANIZATION.md`](docs/CODE_ORGANIZATION.md) - Project structure and patterns
+- [`README.md`](docs/README.md) - Documentation overview and organization
+- [`TODO.md`](docs/TODO.md) - Task list and priorities
+
+See [`docs/README.md`](docs/README.md) for a complete overview of documentation organization.
+
 ## Features
 
 - RESTful API with Axum
@@ -95,7 +129,37 @@ curl -X POST http://localhost:3000/api/quizzes \
   }'
 ```
 
+## Development Guidelines
+
+### Component Design
+
+```rust
+pub trait Component {
+    fn operation(&self) -> Result<Output, Error>;
+    fn validate(&self) -> Result<(), Error>;
+    fn get_side_effects(&self) -> Vec<SideEffect>;
+}
+```
+
+### Error Handling
+
+```rust
+#[derive(Error, Debug)]
+pub enum DomainError {
+    #[error("Invalid input: {0}")]
+    ValidationError(String),
+    #[error("Not found: {0}")]
+    NotFound(String),
+}
+```
+
 ## Testing
+
+See [`docs/TESTING.md`](docs/TESTING.md) for detailed testing guidelines, including:
+- Test categories and organization
+- Coverage requirements
+- Running tests locally
+- CI/CD integration
 
 ### Running Tests
 
@@ -144,6 +208,23 @@ cargo tarpaulin --out Html && open tarpaulin-report.html
 - `/tests/integration/` - Integration tests
 - `/tests/repository/` - Repository tests
 - `/tests/common/` - Shared test utilities
+
+### Testing Strategy
+
+### Coverage Requirements
+
+| Component    | Minimum | Target |
+|-------------|---------|---------|
+| Core Logic  | 90%     | 95%     |
+| API Layer   | 85%     | 90%     |
+| Models      | 80%     | 85%     |
+
+### Test Categories
+
+- Unit Tests: Test atomic components
+- Integration Tests: Test component boundaries
+- Property Tests: Test invariants
+- Mutation Tests: Verify test quality
 
 ### Continuous Integration
 

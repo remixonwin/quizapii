@@ -1,4 +1,25 @@
-use crate::models::error::AppError; // Changed from error::AppError
+//! Quiz repository implementation
+//! 
+//! # Examples
+//! 
+//! ```
+//! use quizmo::repository::quiz_repository::{QuizRepository, QuizRepositoryImpl};
+//! use tempfile::TempDir;
+//! 
+//! #[tokio::main]
+//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//!     let temp_dir = TempDir::new()?;
+//!     let repo = QuizRepositoryImpl::new_with_path(&temp_dir.path().to_path_buf())?;
+//!     
+//!     // Test repository operations
+//!     let quiz_id = "test_quiz";
+//!     let result = repo.find_by_id(quiz_id).await?;
+//!     assert!(result.is_none());
+//!     Ok(())
+//! }
+//! ```
+
+use crate::models::error::AppError;
 use crate::models::quiz::Quiz;
 use anyhow::Result;
 use async_trait::async_trait;

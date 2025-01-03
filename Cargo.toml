@@ -19,6 +19,7 @@ utoipa-swagger-ui = { version = "3.1.5", features = ["axum"] }
 futures-util = "0.3"
 dotenv = "0.15"
 axum-macros = "0.3"
+thiserror = "1.0"
 
 # Database and utilities
 sled = "0.34"

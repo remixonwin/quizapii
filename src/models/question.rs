@@ -11,15 +11,15 @@ use validator::Validate;
 /// use quizmo::models::question::Question;
 ///
 /// let question = Question {
-///     id: "123".to_string(),
+///     id: Some("123".to_string()),
 ///     text: "What is Rust?".to_string(),
 ///     options: vec!["A programming language".to_string(), "A metal".to_string()],
-///     correct_answer: 0,
+///     correct_option: 0,
 ///     points: 10,
 /// };
 ///
 /// assert_eq!(question.text, "What is Rust?");
-/// assert_eq!(question.options.len(), 2);
+/// assert_eq!(question.correct_option, 0);
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, Validate)]
 pub struct Question {
@@ -44,6 +44,11 @@ impl Question {
 
 impl From<QuestionDto> for Question {
     fn from(dto: QuestionDto) -> Self {
-        Question::new(dto.text, dto.options, dto.correct_answer, dto.points)
+        Question::new(
+            dto.text,
+            dto.options,
+            dto.correct_answer, // Changed from correct_option to correct_answer
+            dto.points,
+        )
     }
 }

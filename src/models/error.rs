@@ -1,76 +1,64 @@
+//! Error types for the application
+//! 
+//! # Examples
+//! 
+//! ```
+//! use quizmo::AppError;
+//! 
+//! let not_found = AppError::NotFound;
+//! assert!(not_found.to_string().contains("Not found"));
+//! ```
+
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
-    Json,
 };
-use serde_json::json;
-use std::fmt;
+use thiserror::Error;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum AppError {
-    NotFound(String),
-    InvalidInput(String),
+    #[error("Authentication failed")]
+    AuthError,
+    #[error("Not found")]
+    NotFound,
+    #[error("Invalid input: {0}")]
+    ValidationError(String),
+    #[error("Database error: {0}")]
     DatabaseError(String),
-    InternalError(String),
+    #[error("Serialization error: {0}")]
     SerializationError(String),
+    #[error("Internal server error")]
+    InternalError,
+    #[error("Invalid input: {0}")]
+    InvalidInput(String),
 }
 
-impl fmt::Display for AppError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            AppError::NotFound(msg) => write!(f, "Not found: {}", msg),
-            AppError::InvalidInput(msg) => write!(f, "Invalid input: {}", msg),
-            AppError::DatabaseError(msg) => write!(f, "Database error: {}", msg),
-            AppError::InternalError(msg) => write!(f, "Internal error: {}", msg),
-            AppError::SerializationError(msg) => write!(f, "Serialization error: {}", msg),
-        }
-    }
-}
-
-impl std::error::Error for AppError {}
-
+// Implement conversion from sled::Error
 impl From<sled::Error> for AppError {
     fn from(err: sled::Error) -> Self {
         AppError::DatabaseError(err.to_string())
     }
 }
 
+// Implement conversion from serde_json::Error
 impl From<serde_json::Error> for AppError {
     fn from(err: serde_json::Error) -> Self {
         AppError::SerializationError(err.to_string())
     }
 }
 
-impl From<std::io::Error> for AppError {
-    fn from(err: std::io::Error) -> Self {
-        AppError::InternalError(err.to_string())
-    }
-}
-
-impl From<anyhow::Error> for AppError {
-    fn from(err: anyhow::Error) -> Self {
-        AppError::InternalError(err.to_string())
-    }
-}
-
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        let (status, message) = match self {
-            AppError::NotFound(msg) => (StatusCode::NOT_FOUND, msg),
-            AppError::InvalidInput(msg) => (StatusCode::BAD_REQUEST, msg),
-            AppError::DatabaseError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
-            AppError::InternalError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
-            AppError::SerializationError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
+        let status = match self {
+            AppError::AuthError => StatusCode::UNAUTHORIZED,
+            AppError::NotFound => StatusCode::NOT_FOUND,
+            AppError::ValidationError(_) => StatusCode::BAD_REQUEST,
+            AppError::DatabaseError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::SerializationError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::InternalError => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::InvalidInput(_) => StatusCode::BAD_REQUEST,
         };
-
-        let body = Json(json!({
-            "error": {
-                "message": message,
-                "status": status.as_u16()
-            }
-        }));
-
-        (status, body).into_response()
+        status.into_response()
     }
 }
 
@@ -80,21 +68,35 @@ mod tests {
 
     #[test]
     fn test_app_error_not_found() {
-        let err = AppError::NotFound("Test not found".to_string());
+        let err = AppError::NotFound;
         let response = err.into_response();
         assert_eq!(response.status(), StatusCode::NOT_FOUND);
     }
 
     #[test]
     fn test_app_error_bad_request() {
-        let err = AppError::InvalidInput("Invalid input".to_string());
+        let err = AppError::ValidationError("Invalid input".to_string());
         let response = err.into_response();
         assert_eq!(response.status(), StatusCode::BAD_REQUEST);
     }
 
     #[test]
     fn test_app_error_internal() {
-        let err = AppError::InternalError("Server error".to_string());
+        let err = AppError::InternalError;
+        let response = err.into_response();
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    #[test]
+    fn test_app_error_database() {
+        let err = AppError::DatabaseError("DB connection failed".to_string());
+        let response = err.into_response();
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    #[test]
+    fn test_app_error_serialization() {
+        let err = AppError::SerializationError("JSON decode failed".to_string());
         let response = err.into_response();
         assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
     }
