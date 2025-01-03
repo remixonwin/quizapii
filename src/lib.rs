@@ -32,11 +32,14 @@ pub mod docs;
 pub mod handlers;
 pub mod models;
 pub mod repository;
+pub mod test_utils;
 
 // Re-export key types for easier access
 pub use docs::ApiDoc;
+pub use handlers::AppState;
 pub use models::error::AppError;
 pub use repository::quiz_repository::{QuizRepository, QuizRepositoryImpl};
+pub use test_utils::TestQuizRepository;
 
 pub async fn run_server(addr: &str) -> Result<(), Box<dyn std::error::Error>> {
     let addr = addr.parse()?;

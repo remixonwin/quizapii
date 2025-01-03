@@ -8,12 +8,31 @@ use axum::{
     Router,
 };
 use crate::models::test_types::{TestQuiz, TestUser};
-use uuid::Uuid;
+use std::sync::Arc;
+use crate::repository::quiz_repository::QuizRepository;
 
 // Define AppState type
-#[derive(Clone, Default)] // Derive Default
+#[derive(Clone)]
 pub struct AppState {
-    // Add your state fields here
+    pub repo: Arc<dyn QuizRepository + Send + Sync>,
+}
+
+impl Default for AppState {
+    fn default() -> Self {
+        #[cfg(test)]
+        {
+            use crate::repository::quiz_repository::QuizRepositoryImpl;
+            use tempfile::TempDir;
+            let temp_dir = TempDir::new().unwrap();
+            Self {
+                repo: Arc::new(QuizRepositoryImpl::new_with_path(temp_dir.path()).unwrap())
+            }
+        }
+        #[cfg(not(test))]
+        {
+            unimplemented!("Default implementation only available in tests")
+        }
+    }
 }
 
 pub async fn handle_register(
@@ -39,14 +58,21 @@ pub async fn handle_create_quiz(
     Ok(Json(quiz))
 }
 
+// Update handle_get_quiz to use AppState's repo
 pub async fn handle_get_quiz(
-    State(_state): State<AppState>,
-    Path(_id): Path<Uuid>,
+    State(state): State<AppState>,
+    Path(id): Path<String>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    Ok(Json(()))
+    match state.repo.find_by_id(&id).await {
+        Ok(Some(quiz)) => Ok(Json(quiz)),
+        Ok(None) => Err(StatusCode::NOT_FOUND),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
 }
 
-pub fn create_app(state: AppState) -> Router {
+// Update create_app to use the new AppState
+pub fn create_app(repo: Arc<dyn QuizRepository + Send + Sync>) -> Router {
+    let state = AppState { repo };
     Router::new()
         .route("/api/v1/auth/register", post(handle_register))
         .route("/api/v1/auth/login", post(handle_login))

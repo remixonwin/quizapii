@@ -8,6 +8,7 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
     Json,
+    response::{IntoResponse, Json as AxumJson},
 };
 
 pub async fn create_quiz(
@@ -33,9 +34,9 @@ pub async fn get_all_quizzes(
 pub async fn get_quiz(
     State(repo): State<Arc<dyn QuizRepository + Send + Sync>>, // Added `dyn`
     Path(id): Path<String>,
-) -> Result<Json<Quiz>, StatusCode> {
+) -> Result<impl IntoResponse, StatusCode> {
     match repo.find_by_id(&id).await {
-        Ok(Some(quiz)) => Ok(Json(quiz)),
+        Ok(Some(quiz)) => Ok(AxumJson(quiz)),
         Ok(None) => Err(StatusCode::NOT_FOUND),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
     }

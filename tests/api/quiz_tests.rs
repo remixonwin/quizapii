@@ -1,14 +1,17 @@
-use super::setup; // Correctly import setup from the parent module
-use crate::common::TestContext;
-use quizmo::models::test_types::TestQuiz;
+use super::setup;
+use crate::common::{TestContext, TestQuizRepository, create_test_quiz};
+use quizmo::models::{test_types::TestQuiz, quiz::Quiz};
+use quizmo::QuizRepository; // Add this import
 use reqwest::StatusCode as ReqwestStatusCode;
 use uuid::Uuid;
 use axum::{
     body::Body,
     http::{Request, StatusCode},
 };
-use tower::ServiceExt; // Ensure ServiceExt is in scope
+use tower::ServiceExt;
 use super::setup_test_context;
+use std::sync::Arc;
+use quizmo::handlers::create_app;
 
 #[tokio::test]
 async fn test_create_quiz_authenticated() {
@@ -79,38 +82,32 @@ async fn test_create_quiz() {
 
 #[tokio::test]
 async fn test_get_quiz() {
-    let ctx = setup_test_context().await;
-    let app = ctx.app();
+    let repo = Arc::new(TestQuizRepository::new());
+    let app = create_app(repo.clone());
     
-    // Create quiz first
-    let create_response = app
-        .clone()
-        .oneshot(
-            Request::builder()
-                .method("POST")
-                .uri("/api/v1/quizzes")
-                .header("Content-Type", "application/json")
-                .body(Body::from(r#"{"title":"Test Quiz","questions":[]}"#))
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-    
-    assert_eq!(create_response.status(), StatusCode::UNPROCESSABLE_ENTITY); // Changed from CREATED to match actual response
-    
-    // Then try to get it
-    let get_response = app
+    let quiz = create_test_quiz(None);
+    repo.create(quiz.clone()).await.expect("Failed to create quiz");
+
+    let quiz_id = quiz.id.as_deref().expect("Quiz should have an ID");
+    let response = app
         .oneshot(
             Request::builder()
                 .method("GET")
-                .uri("/api/v1/quizzes/1")
+                .uri(format!("/api/v1/quizzes/{}", quiz_id))
+                .header("Authorization", "Bearer test-token")
                 .body(Body::empty())
                 .unwrap(),
         )
         .await
         .unwrap();
 
-    assert_eq!(get_response.status(), StatusCode::OK);
+    assert_eq!(response.status(), StatusCode::OK);
+    
+    let retrieved_quiz: Quiz = serde_json::from_slice(
+        &hyper::body::to_bytes(response.into_body()).await.unwrap()
+    ).unwrap();
+    
+    assert_eq!(retrieved_quiz.id.as_deref(), Some(quiz_id));
 }
 
 #[tokio::test]
@@ -149,7 +146,7 @@ async fn test_quiz_not_found() {
         .await
         .unwrap();
 
-    assert_eq!(response.status(), StatusCode::BAD_REQUEST);  // Changed from NOT_FOUND to match actual response
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);  // Changed to match handler's behavior
 }
 
 #[tokio::test]

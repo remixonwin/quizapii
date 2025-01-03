@@ -1,11 +1,12 @@
 use quizmo::models::test_types::{TestQuiz, TestUser};
 use quizmo::repository::quiz_repository::QuizRepositoryImpl;
+use quizmo::handlers; // Add handlers import
 use reqwest::Response;
 use tempfile::TempDir;
 use axum::Router;
 use reqwest::Client;
-use quizmo::handlers::AppState; // Import AppState
-use quizmo::handlers; // Import handlers
+use std::sync::Arc;
+use super::TestQuizRepository;
 
 pub struct TestContext {
     pub app: Router,
@@ -17,16 +18,16 @@ pub struct TestContext {
 
 impl TestContext {
     pub async fn new() -> Self {
-        let app_state = AppState::default(); // Replace new with default
-        let app = handlers::create_app(app_state); // Provided AppState argument
+        let repo = Arc::new(TestQuizRepository::new());
+        let app = handlers::create_app(repo);
 
         let client = reqwest::Client::new();
         let base_url = "http://localhost:3000".to_string();
         let temp_dir = TempDir::new().unwrap();
-        let repo = QuizRepositoryImpl::new_with_path(&temp_dir.path().to_path_buf()).unwrap();
+        let repo = QuizRepositoryImpl::new_with_path(temp_dir.path()).unwrap();
 
         Self {
-            app: app.clone(),
+            app,
             api_client: client,
             base_url,
             repo,
@@ -56,19 +57,19 @@ impl TestContext {
 
     #[allow(dead_code)]
     pub async fn register_user(&self, test_user: &TestUser) -> Result<Response, reqwest::Error> {
-        Ok(self.api_client
-            .post(&format!("{}/auth/register", &self.base_url))
+        self.api_client
+            .post(format!("{}/auth/register", &self.base_url))
             .json(test_user)
             .send()
-            .await?)
+            .await
     }
 
     #[allow(dead_code)]
     pub async fn login_user(&self, test_user: &TestUser) -> Result<Response, reqwest::Error> {
-        Ok(self.api_client
-            .post(&format!("{}/auth/login", &self.base_url))
+        self.api_client
+            .post(format!("{}/auth/login", &self.base_url))
             .json(test_user)
             .send()
-            .await?)
+            .await
     }
 }
