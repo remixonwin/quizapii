@@ -80,3 +80,8 @@ pub fn create_app(repo: Arc<dyn QuizRepository + Send + Sync>) -> Router {
         .route("/api/v1/quizzes/:id", get(handle_get_quiz))
         .with_state(state)
 }
+
+#[cfg(test)]
+mod tests {
+    // Add tests for lines 21, 69
+}

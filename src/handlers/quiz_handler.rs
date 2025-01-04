@@ -65,3 +65,8 @@ pub async fn delete_quiz(
         Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    // Add tests for lines 14, 25, 34, 45, 58
+}

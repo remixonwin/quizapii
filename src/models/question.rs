@@ -52,3 +52,40 @@ impl From<QuestionDto> for Question {
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_question_new() {
+        let text = "Test question".to_string();
+        let options = vec!["A".to_string(), "B".to_string()];
+        let correct_option = 0;
+        let points = 10;
+
+        let question = Question::new(text.clone(), options.clone(), correct_option, points);
+
+        assert_eq!(question.text, text);
+        assert_eq!(question.options, options);
+        assert_eq!(question.correct_option, correct_option);
+        assert_eq!(question.points, points);
+        assert!(question.id.is_none());
+    }
+
+    #[test]
+    fn test_question_from_dto() {
+        let dto = QuestionDto {
+            text: "Test Question".to_string(),
+            options: vec!["A".to_string(), "B".to_string()],
+            correct_answer: 1,
+            points: 5,
+        };
+
+        let question = Question::from(dto.clone());
+        assert_eq!(question.text, dto.text);
+        assert_eq!(question.options, dto.options);
+        assert_eq!(question.correct_option, dto.correct_answer);
+        assert_eq!(question.points, dto.points);
+    }
+}

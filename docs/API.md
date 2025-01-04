@@ -1,53 +1,69 @@
-# API Documentation 
-
-## Authentication
-
-All endpoints except /health require JWT authentication:
-
-```http
-Authorization: Bearer <token>
-```
+# API Documentation
 
 ## Endpoints
 
-### Quiz Management
+### Quizzes
 
 #### Create Quiz
-`POST /api/v1/quizzes`
+```http
+POST /api/v1/quizzes
+Content-Type: application/json
 
-Request:
-```json
 {
-  "title": "String",
-  "description": "String",
-  "questions": [
-    {
-      "text": "String",
-      "options": ["String"],
-      "correct_answer": 0,
-      "points": 10
-    }
-  ]
+  "title": "Test Quiz",
+  "description": "Test Description",
+  "questions": []
 }
 ```
 
-Response (201 Created):
-```json
+#### Get Quiz
+```http
+GET /api/v1/quizzes/{id}
+```
+
+#### List Quizzes
+```http
+GET /api/v1/quizzes
+```
+
+### Authentication
+
+#### Register
+```http
+POST /api/v1/auth/register
+Content-Type: application/json
+
 {
-  "id": "uuid",
-  "title": "String",
-  // ...remaining fields
+  "username": "user",
+  "password": "password"
 }
 ```
 
-### Error Responses
+#### Login
+```http
+POST /api/v1/auth/login
+Content-Type: application/json
 
-All errors follow format:
-```json
 {
-  "error": {
-    "message": "String",
-    "status": 400
-  }
+  "username": "user",
+  "password": "password"
 }
 ```
+
+## Error Responses
+
+All errors follow the format:
+```json
+{
+  "error": "Error message",
+  "code": "ERROR_CODE"
+}
+```
+
+Common status codes:
+- 200: Success
+- 201: Created
+- 400: Bad Request
+- 401: Unauthorized
+- 404: Not Found
+- 500: Internal Server Error

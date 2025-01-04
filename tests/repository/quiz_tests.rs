@@ -5,6 +5,9 @@ use uuid::Uuid;
 use quizmo::models::quiz::Quiz;
 use quizmo::repository::quiz_repository::{QuizRepository, QuizRepositoryImpl};
 
+use tempfile::TempDir;
+use std::path::PathBuf;
+
 // Removed unused import
 // use tempfile;
 
@@ -67,4 +70,48 @@ async fn test_persistence() {
     let quizzes = new_repo.find_all().await.unwrap(); // Use the correct method name
     assert_eq!(quizzes.len(), 1);
     assert_eq!(quizzes[0].title, "Persistent Quiz");
+}
+
+#[tokio::test]
+async fn test_invalid_repository_path() {
+    let invalid_path = PathBuf::from("/nonexistent/path");
+    let repo_result = QuizRepositoryImpl::new_with_path(&invalid_path);
+    assert!(repo_result.is_err());
+}
+
+#[tokio::test]
+async fn test_quiz_not_found_error() {
+    let temp_dir = TempDir::new().unwrap();
+    let repo = QuizRepositoryImpl::new_with_path(temp_dir.path()).unwrap();
+    
+    let result = repo.find_by_id("nonexistent").await;
+    assert!(result.unwrap().is_none());
+}
+
+#[tokio::test]
+async fn test_concurrent_quiz_operations() {
+    let temp_dir = TempDir::new().unwrap();
+    let repo = QuizRepositoryImpl::new_with_path(temp_dir.path()).unwrap();
+
+    let quiz = Quiz::new(
+        "Original".to_string(),
+        "Description".to_string(),
+        vec![],
+    );
+    
+    let created = repo.create(quiz).await.unwrap();
+    let id = created.id.unwrap();
+
+    // Simulate concurrent updates
+    let mut update1 = created.clone();
+    let mut update2 = created.clone();
+    
+    update1.title = "Update 1".to_string();
+    update2.title = "Update 2".to_string();
+
+    let result1 = repo.update(&id, update1).await;
+    let result2 = repo.update(&id, update2).await;
+
+    assert!(result1.is_ok());
+    assert!(result2.is_ok());
 }

@@ -5,8 +5,8 @@
 //! ```
 //! use quizmo::AppError;
 //! 
-//! let not_found = AppError::NotFound;
-//! assert!(not_found.to_string().contains("Not found"));
+//! let not_found = AppError::NotFound("Resource not found".to_string());
+//! assert!(not_found.to_string().contains("Resource not found"));
 //! ```
 
 use axum::{
@@ -15,22 +15,22 @@ use axum::{
 };
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, Clone)]
 pub enum AppError {
-    #[error("Authentication failed")]
-    AuthError,
-    #[error("Not found")]
-    NotFound,
-    #[error("Invalid input: {0}")]
+    #[error("Resource not found: {0}")]
+    NotFound(String),
+    #[error("Validation error: {0}")]
     ValidationError(String),
     #[error("Database error: {0}")]
     DatabaseError(String),
     #[error("Serialization error: {0}")]
     SerializationError(String),
-    #[error("Internal server error")]
-    InternalError,
-    #[error("Invalid input: {0}")]
-    InvalidInput(String),
+    #[error("Internal server error: {0}")]
+    InternalError(String),
+    #[error("Authorization error: {0}")]
+    AuthError(String),
+    #[error("Concurrent modification error: {0}")]
+    ConcurrencyError(String),
 }
 
 // Implement conversion from sled::Error
@@ -50,13 +50,13 @@ impl From<serde_json::Error> for AppError {
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let status = match self {
-            AppError::AuthError => StatusCode::UNAUTHORIZED,
-            AppError::NotFound => StatusCode::NOT_FOUND,
+            AppError::AuthError(_) => StatusCode::UNAUTHORIZED,
+            AppError::NotFound(_) => StatusCode::NOT_FOUND,
             AppError::ValidationError(_) => StatusCode::BAD_REQUEST,
             AppError::DatabaseError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::SerializationError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            AppError::InternalError => StatusCode::INTERNAL_SERVER_ERROR,
-            AppError::InvalidInput(_) => StatusCode::BAD_REQUEST,
+            AppError::InternalError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::ConcurrencyError(_) => StatusCode::CONFLICT,
         };
         status.into_response()
     }
@@ -68,7 +68,7 @@ mod tests {
 
     #[test]
     fn test_app_error_not_found() {
-        let err = AppError::NotFound;
+        let err = AppError::NotFound("Resource not found".to_string());
         let response = err.into_response();
         assert_eq!(response.status(), StatusCode::NOT_FOUND);
     }
@@ -82,7 +82,7 @@ mod tests {
 
     #[test]
     fn test_app_error_internal() {
-        let err = AppError::InternalError;
+        let err = AppError::InternalError("Internal server error".to_string());
         let response = err.into_response();
         assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
     }
@@ -99,5 +99,12 @@ mod tests {
         let err = AppError::SerializationError("JSON decode failed".to_string());
         let response = err.into_response();
         assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    #[test]
+    fn test_app_error_concurrency() {
+        let err = AppError::ConcurrencyError("Concurrent modification error".to_string());
+        let response = err.into_response();
+        assert_eq!(response.status(), StatusCode::CONFLICT);
     }
 }

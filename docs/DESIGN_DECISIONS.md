@@ -22,6 +22,15 @@ pub trait QuizComponent {
 }
 ```
 
+### Current Implementation
+```rust
+pub trait QuizRepository {
+    async fn create(&self, quiz: Quiz) -> Result<Quiz, AppError>;
+    async fn get(&self, id: String) -> Result<Quiz, AppError>;
+    // Additional methods as needed
+}
+```
+
 ## 2. Error Handling
 
 ### Decision
@@ -46,6 +55,11 @@ pub enum DomainError {
 }
 ```
 
+### Current Implementation Examples
+- AppError for centralized error handling
+- Repository-specific error types
+- HTTP status code mapping
+
 ## 3. Interface Design
 
 ### Decision
@@ -57,6 +71,11 @@ Use trait-based interfaces for all components.
 - Dependency inversion
 - Mockability
 
+### Current Examples
+- TestQuizRepository for testing
+- Trait-based repository pattern
+- Async interfaces for future scalability
+
 ## 4. Testing Strategy
 
 ### Decision
@@ -67,3 +86,23 @@ Test at component boundaries with comprehensive coverage.
 - Verify contracts
 - Ensure reliability
 - Document behavior
+
+### Decision
+Use dedicated test utilities and common setup functions.
+
+### Rationale
+- Consistent test setup
+- Reusable test components
+- Reduced test code duplication
+- Better maintenance
+
+### Current Implementation
+```rust
+pub async fn setup_test_quiz() -> (TestQuizRepository, String) {
+    // Implementation from common.rs
+}
+
+pub async fn create_multiple_quizzes(repo: &TestQuizRepository, count: usize) -> Vec<String> {
+    // Implementation from common.rs
+}
+```

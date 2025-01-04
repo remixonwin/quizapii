@@ -35,3 +35,8 @@ impl QuizSubmission {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    // Add tests for lines 27, 29, 34
+}

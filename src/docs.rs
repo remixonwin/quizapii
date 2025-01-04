@@ -144,3 +144,8 @@ fn list_quizzes() {}
 )]
 #[allow(dead_code)]
 fn submit_quiz() {}
+
+#[cfg(test)]
+mod tests {
+    // Add tests for lines 39-41, 43-45, 66, 82, 100, 116, 128, 146
+}

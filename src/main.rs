@@ -26,3 +26,8 @@ async fn main() {
         .await
         .unwrap();
 }
+
+#[cfg(test)]
+mod tests {
+    // Add tests for lines 13-14, 16, 18, 20-22, 24-26
+}

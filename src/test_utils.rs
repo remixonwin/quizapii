@@ -5,6 +5,7 @@ use crate::models::quiz::Quiz;
 use crate::models::error::AppError;
 use crate::repository::quiz_repository::QuizRepository;
 
+#[derive(Clone)]
 pub struct TestQuizRepository {
     quizzes: Arc<Mutex<HashMap<String, Quiz>>>,
 }
@@ -26,7 +27,7 @@ impl Default for TestQuizRepository {
 #[async_trait]
 impl QuizRepository for TestQuizRepository {
     async fn find_by_id(&self, id: &str) -> Result<Option<Quiz>, AppError> {
-        Ok(self.quizzes.lock().unwrap().get(id).cloned())
+        Ok(self.quizzes.lock().map_err(|_| AppError::InternalError("Lock error".to_string()))?.get(id).cloned())
     }
 
     async fn find_all(&self) -> Result<Vec<Quiz>, AppError> {
@@ -56,4 +57,30 @@ impl QuizRepository for TestQuizRepository {
         let mut quizzes = self.quizzes.lock().unwrap();
         Ok(quizzes.remove(id).is_some())
     }
+}
+
+pub async fn concurrently_update_quiz(
+    repo: &TestQuizRepository,
+    quiz_id: &str,
+) -> Result<(), AppError> {
+    let mut handles = vec![];
+    for i in 0..5 {
+        let repo_clone = repo.clone();
+        let id_clone = quiz_id.to_string();
+        handles.push(tokio::spawn(async move {
+            let quiz_update = Quiz {
+                id: Some(id_clone),
+                title: format!("Concurrent Update {}", i),
+                description: "Test description".to_string(),
+                questions: Vec::new(),
+                created_at: chrono::Utc::now(),
+                updated_at: chrono::Utc::now(),
+            };
+            repo_clone.update(&id_clone, quiz_update).await
+        }));
+    }
+    for handle in handles {
+        handle.await??;
+    }
+    Ok(())
 }
