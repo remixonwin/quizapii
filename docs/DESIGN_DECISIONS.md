@@ -106,3 +106,76 @@ pub async fn create_multiple_quizzes(repo: &TestQuizRepository, count: usize) ->
     // Implementation from common.rs
 }
 ```
+
+## 5. API Documentation
+
+### Decision
+Use OpenAPI/Swagger with utoipa.
+
+### Rationale
+- Standard API documentation
+- Interactive testing interface
+- Code-first approach
+- Auto-generated documentation
+
+### Implementation
+```rust
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(
+    paths(
+        crate::api::create_quiz,
+        crate::api::get_quiz,
+        crate::api::update_quiz,
+        crate::api::delete_quiz,
+    ),
+    components(schemas(Quiz, QuizId, Error)),
+    tags(
+        (name = "quiz", description = "Quiz management endpoints")
+    )
+)]
+pub struct ApiDoc;
+```
+
+## 6. Authentication
+
+### Decision
+Implement JWT-based authentication.
+
+### Rationale
+- Secure authentication
+- Stateless sessions
+- Scalability
+- Standardized approach
+
+### Implementation
+```rust
+use jsonwebtoken::{encode, decode, Header, Validation, EncodingKey, DecodingKey};
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Claims {
+    sub: String,
+    exp: usize,
+}
+
+fn create_jwt(user_id: &str, secret: &str) -> Result<String, jsonwebtoken::errors::Error> {
+    let expiration = chrono::Utc::now()
+        .checked_add_signed(chrono::Duration::seconds(60))
+        .expect("valid timestamp")
+        .timestamp();
+
+    let claims = Claims {
+        sub: user_id.to_owned(),
+        exp: expiration as usize,
+    };
+
+    encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_ref()))
+}
+
+fn decode_jwt(token: &str, secret: &str) -> Result<Claims, jsonwebtoken::errors::Error> {
+    let token_data = decode::<Claims>(token, &DecodingKey::from_secret(secret.as_ref()), &Validation::default())?;
+    Ok(token_data.claims)
+}
+```

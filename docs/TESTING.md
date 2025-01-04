@@ -7,21 +7,22 @@ Located in `tests/common.rs`:
 - `setup_test_quiz()`: Creates a test quiz and repository
 - `create_multiple_quizzes()`: Bulk quiz creation for tests
 
-### Test Categories
-1. **Unit Tests**
-   - Individual component testing
-   - Mock dependencies when needed
-   - Focus on business logic
+## Test Categories
 
-2. **Integration Tests**
-   - API endpoint testing
-   - Repository integration
-   - Error handling validation
+1. Unit Tests
+   - Repository implementations
+   - Model validations
+   - Error handling
 
-3. **Repository Tests**
-   - CRUD operations
-   - Error conditions
-   - Data consistency
+2. Integration Tests
+   - API endpoints
+   - Authentication flow
+   - Database operations
+
+3. Component Tests
+   - Repository layer
+   - Service layer
+   - Handler layer
 
 ## Best Practices
 
@@ -43,10 +44,11 @@ let (repo, quiz_id) = setup_test_quiz().await;
 - Validate state changes
 
 ## Coverage Requirements
-- All public interfaces must be tested
-- Error handling paths must be verified
-- Edge cases must be covered
-- Repository operations must be validated
+
+- Minimum 80% line coverage
+- 100% coverage for critical paths
+- All error paths tested
+- All API endpoints tested
 
 ## Running Tests
 

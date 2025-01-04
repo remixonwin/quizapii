@@ -2,16 +2,15 @@
 
 A REST API for managing quizzes built with Rust using Axum and Sled DB.
 
-## Current Status
+## Features
 
-- ✅ Basic API structure implemented with Axum
-- ✅ Quiz CRUD operations defined
-- ✅ Test infrastructure in place with common test utilities
-- ✅ Repository pattern implemented with TestQuizRepository
-- ✅ Error handling implemented with AppError
-- ✅ Basic user authentication implemented
-- 🚧 Database integration with Sled (in progress)
-- 🚧 API documentation (in progress)
+- ✅ OpenAPI/Swagger documentation
+- ✅ JWT-based authentication
+- ✅ Repository pattern with Sled DB
+- ✅ Full test coverage
+- ✅ Error handling with custom AppError
+- ✅ Input validation
+- ✅ CORS support
 
 ## Project Structure
 

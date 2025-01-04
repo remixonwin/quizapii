@@ -26,7 +26,9 @@ GET /api/v1/quizzes/{id}
 GET /api/v1/quizzes
 ```
 
-### Authentication
+## Authentication
+
+All protected endpoints require Bearer token:
 
 #### Register
 ```http
